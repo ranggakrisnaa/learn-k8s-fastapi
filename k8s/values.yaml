@@ -16,6 +16,35 @@ ingress:
   host: api.dev.local
   path: /
 
+  # Load balancing & Performance
+  rateLimit: 100 # Requests per second per IP
+  maxConnections: 50 # Max concurrent connections per IP
+  maxBodySize: 10m # Max request body size
+
+  # Timeouts (seconds)
+  proxyConnectTimeout: 60
+  proxySendTimeout: 60
+  proxyReadTimeout: 60
+
+  # CORS configuration
+  cors:
+    enabled: true
+    allowOrigin: "*" # Change to specific domains in production
+    allowMethods: "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+    allowHeaders: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization"
+
+  # TLS/SSL configuration
+  tls:
+    enabled: false # Set to true in production
+    issuer: letsencrypt-prod # cert-manager cluster issuer
+
+  # Custom annotations (optional)
+  annotations:
+    {}
+    # nginx.ingress.kubernetes.io/whitelist-source-range: "10.0.0.0/8"
+    # nginx.ingress.kubernetes.io/auth-type: basic
+    # nginx.ingress.kubernetes.io/auth-secret: basic-auth
+
 resources:
   requests:
     cpu: 100m

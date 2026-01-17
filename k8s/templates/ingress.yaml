@@ -3,8 +3,54 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ .Chart.Name }}-ingress
+  annotations:
+    # Load balancing algorithm
+    nginx.ingress.kubernetes.io/load-balance: "least_conn"
+    
+    # Rate limiting (requests per second per IP)
+    nginx.ingress.kubernetes.io/limit-rps: "{{ .Values.ingress.rateLimit | default "100" }}"
+    nginx.ingress.kubernetes.io/limit-connections: "{{ .Values.ingress.maxConnections | default "50" }}"
+    
+    # Timeouts
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "{{ .Values.ingress.proxyConnectTimeout | default "60" }}"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "{{ .Values.ingress.proxySendTimeout | default "60" }}"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "{{ .Values.ingress.proxyReadTimeout | default "60" }}"
+    
+    # CORS configuration
+    nginx.ingress.kubernetes.io/enable-cors: "{{ .Values.ingress.cors.enabled | default "true" }}"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "{{ .Values.ingress.cors.allowOrigin | default "*" }}"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "{{ .Values.ingress.cors.allowMethods | default "GET, POST, PUT, DELETE, OPTIONS" }}"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "{{ .Values.ingress.cors.allowHeaders | default "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization" }}"
+    
+    # SSL/TLS configuration (optional)
+    {{- if .Values.ingress.tls.enabled }}
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "{{ .Values.ingress.tls.issuer | default "letsencrypt-prod" }}"
+    {{- else }}
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    {{- end }}
+    
+    # Request body size limit
+    nginx.ingress.kubernetes.io/proxy-body-size: "{{ .Values.ingress.maxBodySize | default "10m" }}"
+    
+    # Custom headers for security
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+    
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host }}
+      secretName: {{ .Chart.Name }}-tls
+  {{- end }}
   rules:
     - host: {{ .Values.ingress.host }}
       http:
