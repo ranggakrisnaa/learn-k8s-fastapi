@@ -1,0 +1,47 @@
+# Minimal Prometheus configuration for k3d
+prometheus:
+  prometheusSpec:
+    # Reduce resource requirements for k3d
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    
+    # Retention period
+    retention: 15d
+    
+    # Service monitor selector (discovers ServiceMonitor resources)
+    serviceMonitorSelectorNilUsesHelmValues: false
+    
+    # Pod monitor selector (discovers PodMonitor resources)
+    podMonitorSelectorNilUsesHelmValues: false
+
+# Grafana disabled (using standalone deployment)
+grafana:
+  enabled: false
+
+# AlertManager disabled for now
+alertmanager:
+  enabled: false
+
+# Node exporter disabled (optional)
+nodeExporter:
+  enabled: false
+
+# kube-state-metrics disabled (optional)
+kubeStateMetrics:
+  enabled: false
+
+# Prometheus operator enabled for ServiceMonitor/PodMonitor support
+prometheusOperator:
+  enabled: true
+  resources:
+    limits:
+      cpu: 200m
+      memory: 200Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi

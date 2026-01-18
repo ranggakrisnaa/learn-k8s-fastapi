@@ -1,14 +1,21 @@
 replicaCount: 2
 
+deployment:
+  enabled: true
+
 image:
-  repository: my-registry/python-api
+  repository: python-api
   tag: v1.0.0
-  pullPolicy: IfNotPresent
+  pullPolicy: Never
 
 service:
+  enabled: true
   type: NodePort
   port: 80
   targetPort: 8000
+  # Label for ServiceMonitor discovery
+  labels:
+    app.kubernetes.io/name: python-api
 
 ingress:
   enabled: true
@@ -35,7 +42,7 @@ ingress:
 
   # TLS/SSL configuration
   tls:
-    enabled: false # Set to true in production
+    enabled: trues # Set to true in production
     issuer: letsencrypt-prod # cert-manager cluster issuer
 
   # Custom annotations (optional)
@@ -64,3 +71,6 @@ hpa:
   minReplicas: 2
   maxReplicas: 5
   cpuUtilization: 70
+
+servicemonitor:
+  enabled: true
