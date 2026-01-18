@@ -2,8 +2,8 @@
 set -e
 
 GRAFANA_URL="http://localhost:3000"
-GRAFANA_API_KEY="glsa_SAjgkSvslFYrfxA1Un12XptzqGHEHYfc_b9f4314e"
-PROM_UID="PBFA97CFB590B2093"
+# GRAFANA_API_KEY="glsa_SAjgkSvslFYrfxA1Un12XptzqGHEHYfc_b9f4314e"
+# PROM_UID="PBFA97CFB590B2093"
 
 echo "Creating Grafana Dashboard..."
 
